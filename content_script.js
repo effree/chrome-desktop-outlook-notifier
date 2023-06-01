@@ -1,41 +1,36 @@
 (function(win) {
-    const appElement = document.querySelector("#app");
-    const OutlookMutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-    const bodyObserver = new OutlookMutationObserver(check);
-    bodyObserver.observe(win.document.body, {
-        childList: true,
-        subtree: true
-    });
+    Notification.requestPermission((status) => {
+        if (status != "granted") {
+            return;
+        }
+        const appElement = document.querySelector("#app");
+        const OutlookMutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        const bodyObserver = new OutlookMutationObserver(check);
+        bodyObserver.observe(win.document.body, {
+            childList: true,
+            subtree: true
+        });
 
-    function check() {
-        // Find the "Reminders" portal element.
-        const portalElements = document.querySelectorAll('[data-portal-element="true"]');
-        for (const elem of portalElements) {
-            const compStyle = win.getComputedStyle(elem);
-            if (compStyle.getPropertyValue("z-index") == 10000000) {
-                const portalElementObs = new OutlookMutationObserver(notifyReminder);
-                portalElementObs.observe(elem, {
-                    childList: true,
-                    subtree: true
-                });
-                bodyObserver.disconnect();
-                break;
+        function check() {
+            // Find the "Reminders" portal element.
+            const portalElements = document.querySelectorAll('[data-portal-element="true"]');
+            for (const elem of portalElements) {
+                const compStyle = win.getComputedStyle(elem);
+                if (compStyle.getPropertyValue("z-index") == 10000000) {
+                    const portalElementObs = new OutlookMutationObserver(notifyReminder);
+                    portalElementObs.observe(elem, {
+                        childList: true,
+                        subtree: true
+                    });
+                    bodyObserver.disconnect();
+                    break;
+                }
             }
         }
-    }
 
-    function notifyReminder(mutations) {
-        Notification.requestPermission((status) => {
-            if (status != "granted") {
-                return;
-            }
+        function notifyReminder(mutations) {
             mutations.forEach(function(mutation) {
-                const remindersColl = document.evaluate(".//div[text() = 'Reminders']", mutation.target);
-                let reminderElem = remindersColl.iterateNext();
-                if (reminderElem === null) {
-                    return;
-                }
-                const items = document.evaluate("./../following-sibling::div//div[@data-is-focusable='true']/button/*[@data-automationid='splitbuttonprimary']", reminderElem);
+                const items = document.evaluate(".//div[@data-is-focusable='true']/button/*[@data-automationid='splitbuttonprimary']", mutation.target);
                 let item = items.iterateNext();
                 while (item) {
                     const info = item.querySelector(":scope > :nth-child(2)");
@@ -56,6 +51,6 @@
                     item = items.iterateNext();
                 }
             });
-        });
-    }
+        }
+    });
 })(this);
