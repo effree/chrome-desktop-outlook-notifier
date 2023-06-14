@@ -1,6 +1,6 @@
 {
-  "name": "Outlook Notifier",
-  "description": "What Microsoft should have done.",
+  "name": "Outlook Desktop Notifications",
+  "description": "What Microsoft should have done.  Shows Desktop Notifications for meetings, events and email.",
   "version": "1.1",
   "author": "Jorge Ortega & Tommy Beadle & Jeffrey Meyer",
   "permissions": [
@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.office365.com/*", "https://*.office.com/*"],
-      "eclude_matches": ["*://*/*calendar*"],
+      "exclude_matches": ["*://*/*calendar*"],
       "js": ["content_script.js"],
       "run_at": "document_end"
     }
